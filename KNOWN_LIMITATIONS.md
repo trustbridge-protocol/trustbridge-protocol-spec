@@ -1,12 +1,14 @@
 # Known Limitations Register
 
-**TrustBridge Protocol — Prototype Build — v4 — October 2026**
+**TrustBridge Protocol — v5 — November 2026**
 
 > This document catalogues all known limitations, prototype-only behaviours, and pre-production requirements in the current TrustBridge build. It is published openly to demonstrate technical awareness and professional discipline.
 >
+> **v5 update:** aligned with [SMART_CONTRACT_SPEC.md](SMART_CONTRACT_SPEC.md) v1.3. The v1 smart contracts are now **built, tested and deployed on the Base Sepolia testnet** (not reviewed, not audited, not on mainnet). Section 3 statuses updated; the same-asset row in Section 4 corrected (rejected in the Deal contract on every plan); new **Section 7 — contract-level limitations** (CL-01 to CL-12).
+>
 > **v4 update:** aligned with [SMART_CONTRACT_SPEC.md](SMART_CONTRACT_SPEC.md) v1.2. All architecture decisions confirmed (R-16). Contract scope is now 7 core functions plus 4 supporting functions. Adds multi-chain configuration (R-17), guarded launch and pause switch (R-18), Enterprise agent seats and reporting (R-10), two prototype UI items (U-09, U-10), and a ninth immutable decision (I-09).
 
-**Scope:** the React/JSX prototype. This register does not cover production smart contracts, which have not yet been written.
+**Scope:** the React/JSX prototype (Sections 1–5) and the v1 smart contracts deployed on the Base Sepolia testnet (Section 7).
 
 ---
 
@@ -57,9 +59,9 @@
 
 | Ref | Area | Requirement | Phase |
 |-----|------|------------|-------|
-| R-01 | Smart contracts | Contracts do not yet exist. Factory, module, guard and price adapter, with 7 core and 4 supporting functions, must be written, tested, independently reviewed and audited. See [SMART_CONTRACT_SPEC.md](SMART_CONTRACT_SPEC.md). | Phase 2 |
+| R-01 | Smart contracts | **Built, tested and deployed on Base Sepolia (November 2026):** factory, settlement library, module, guard and Chainlink price adapter, all 7 core and 4 supporting functions; 331 tests, Slither clean of high and medium findings. Still required: independent senior Solidity / Safe review and the audit (R-02). See [SMART_CONTRACT_SPEC.md](SMART_CONTRACT_SPEC.md). | Built — review next |
 | R-02 | Security audit | No audit conducted. Independent professional audit mandatory before mainnet. Budget: $15,000–$25,000. | Phase 2, before mainnet |
-| R-03 | Price oracle | Chainlink integration not yet built, including staleness handling. CoinGecko for UI display only. | Phase 2 |
+| R-03 | Price oracle | Chainlink integration built, with staleness, round-completeness and L2 sequencer checks; running against the live Base Sepolia feeds. CoinGecko for UI display only. | Built — testnet |
 | R-04 | Real wallet integration | Wagmi + viem for wallet connection and transaction signing. No real transactions in prototype. | Phase 2 |
 | R-05 | Backend persistence | Supabase or PlanetScale with row-level security. FATF Travel Rule field in schema from day one — **populated for all deals above AED 3,500 (~$950 USD)**. Admin audit log as append-only table. | Phase 2 |
 | R-06 | Email notifications | Deal event notifications. No notification system in prototype. | Phase 2 |
@@ -67,14 +69,14 @@
 | R-08 | KYC / AML thresholds | **Two separate VARA thresholds:** (1) FATF Travel Rule: **AED 3,500 (~$950 USD)** — originator name, wallet address and beneficiary info required above this level; Free plan deals ($5,000) can exceed it, so it applies from mainnet day one. (2) CDD occasional transaction: **AED 55,000 (~$15,000 USD)** — enhanced due diligence above this level. The CDD check is enforced at the application / operator layer, not in the contracts (D-05). | Phase 3 — specified before Phase 2 |
 | R-09 | VARA regulatory classification | Non-custodial DLT infrastructure argument — not a VASP. Pre-application VARA enquiry and formal UAE legal opinion required before mainnet. | Before mainnet |
 | R-10 | Enterprise operator onboarding | No onboarding flow exists. Operators need: domain configuration, fee split setup, brand configuration, an operator dashboard with revenue metrics, agent seats with roles, per-agent deal attribution, consolidated reporting and export for internal audit, and an Operator Agreement defining the liability split. Company wallets (including a company Safe multisig) are used across all deals. | Spec: Phase 2. Build: Phase 3 |
-| R-11 | Approved token whitelist | USDC, USDT, ETH, WBTC, DAI, WETH, enforced at `createDeal()`. UI shows a verified badge for approved tokens and a warning for unverified addresses. Enterprise token additions via a governance process (to be defined). | Specified. Build: Phase 2 |
-| R-12 | Minimum deal value | $10 USD equivalent enforced at `createDeal()` against Chainlink. Prevents gas griefing. | Specified. Build: Phase 2 |
-| R-13 | Fee precision at large deal sizes | Always round down in favour of the user; fee taken from deal proceeds; wei precision; misconfigured fee wallet reverts rather than failing silently. | Specified. Build: Phase 2 |
-| R-14 | Renegotiation connection loss | If a renegotiation window expires without acceptance or decline, the deal cancels and both deposits return. No ambiguous mid-renegotiation state. | Specified. Build: Phase 2 |
+| R-11 | Approved token whitelist | USDC, USDT, ETH, WBTC, DAI, WETH, enforced at `createDeal()`. UI shows a verified badge for approved tokens and a warning for unverified addresses. Enterprise token additions via a governance process (to be defined). | Built — enforced on-chain |
+| R-12 | Minimum deal value | $10 USD equivalent enforced at `createDeal()` against Chainlink. Prevents gas griefing. | Built — enforced on-chain |
+| R-13 | Fee precision at large deal sizes | Always round down in favour of the user; fee taken from what Party A receives; cap fixed in token units at creation; wei precision; misconfigured fee wallet reverts rather than failing silently. | Specified. Build: Phase 2 |
+| R-14 | Renegotiation connection loss | If a renegotiation window expires without acceptance or decline, the deal cancels and both deposits return. No ambiguous mid-renegotiation state. | Built — tested |
 | R-15 | Public operator registry | A public list of approved white-label operators on trustbridgeprotocol.xyz, protecting users against operator impersonation. | Phase 3 |
-| R-16 | Architecture decisions | **Confirmed October 2026:** Safe per deal + module + guard (D-01), signature-bound invite link with optional address lock and Party A confirmation (D-02), on-chain confirmations with permissionless auto-release trigger (D-03), Free / Pro voucher / operator registry fee tiers (D-04), compliance at the application layer (D-05), renegotiation window on price breach (D-06), expiry changes only with both signatures (D-07), no break-glass mode (D-08), configurable EVM chains (D-09). | Confirmed — specified in v1.2 |
+| R-16 | Architecture decisions | **Confirmed October 2026:** Safe per deal + module + guard (D-01), signature-bound invite link with optional address lock and Party A confirmation (D-02), on-chain confirmations with permissionless auto-release trigger (D-03), Free / Pro voucher / operator registry fee tiers (D-04), compliance at the application layer (D-05), renegotiation window on price breach (D-06), expiry changes only with both signatures (D-07), no break-glass mode (D-08), configurable EVM chains (D-09). | Confirmed — built to spec v1.3 |
 | R-17 | Multi-chain configuration | Base first. Other EVM chains added through per-chain configuration (Safe addresses, price sources, whitelist), each followed by a chain-specific audit review. Non-EVM chains and cross-chain deals out of scope; users are pointed to independent swap and bridge services through verified links. | Phase 2 design; additional chains Phase 3+ |
-| R-18 | Guarded launch and pause | A maximum deal value applies for the first months of mainnet. An admin pause stops new deals only; existing deals always continue. | Specified. Build: Phase 2 |
+| R-18 | Guarded launch and pause | A maximum deal value applies for the first months of mainnet. An admin pause stops new deals only; existing deals always continue. | Built — testnet cap $50,000; mainnet cap to decide |
 
 ---
 
@@ -86,9 +88,11 @@
 | Maximum timer | 7 days | 30 days | 365 days |
 | Long-duration acknowledgment | N/A — 7-day max | Deals over 7 days (confirmed) | Deals over 30 days (confirmed) |
 | Single-party auto-release window | 15 minutes | 15 minutes | Configurable — default 2 hours |
-| Same-asset deals | Not permitted | Permitted, with education note | Permitted, with education note |
+| Same-asset deals | Not permitted in Deal | Not permitted in Deal | Not permitted in Deal |
 | Minimum deal value | $10 USD equivalent | $10 USD equivalent | $10 USD equivalent |
 | Approved tokens | USDC, USDT, ETH, WBTC, DAI, WETH | Same | Same + operator additions |
+
+Same-asset swaps are rejected by the Deal contract on every plan as an anti-money-laundering control (a swap of a token for itself has no economic purpose). Same-asset shared vaults belong to the TrustBridge Vault product.
 
 ---
 
@@ -131,11 +135,32 @@
 
 ---
 
-## For grant reviewers and developers
+## Section 7 — Contract-level limitations
 
-Sections 1 and 2 are expected prototype behaviour. Section 3 is the Phase 2 scope, with R-16 recording the confirmed architecture decisions. Section 5 shows active development discipline. Section 6 confirms the security decisions are fixed. The stress test found no fatal architectural problems — the gaps were specification or UI issues.
+What the v1 contracts deliberately do not do, or cannot prevent. IDs are stable; "Raised" gives the build stage. Open questions O-01 and O-02 are put to the independent reviewer.
+
+| ID | Limitation | Why it is accepted | Mitigation | Raised |
+|---|---|---|---|---|
+| CL-01 | **Tokens sent straight to a deal Safe** (not through `depositAssets`) can never be recovered. The guard blocks owners; the module only pays recorded deal amounts | Any recovery path is a new way for funds to leave a deal Safe — the thing the design exists to prevent | The app only ever deposits through the contract; user guidance | Stage 2 |
+| CL-02 | **A Pro voucher can't be revoked early.** Worst case it runs to its 35-day end | Revocation needs a live check against a registry or the voucher key, adding a dependency to every createDeal | 35-day on-chain maximum (B-06); a compromised voucher key only grants lower fees, never funds; key rotatable with 7-day notice | Stage 2 |
+| CL-03 | **Issuer freezes the deal Safe itself** (not a party's wallet). Every transfer of that token out of the Safe fails, so that leg can be neither released nor refunded until the issuer lifts the freeze. The other token's leg is still refundable at expiry (refunds are independent) | No contract can override an issuer's freeze. The deal Safe is a fresh address that never transacts on its own, so a targeted freeze is unlikely | Refunds stay on record and are retryable forever; documented for operators and users | Stage 5 |
+| CL-04 | **Breach-timing escape (O-01).** Anyone can call release at a moment the price is outside the band, forcing renegotiation (Pro/Enterprise) or cancellation (Free). A party who regrets the deal could use a brief spike to get out. Nobody can take funds: deposits return to their owners | Inherent to D-06 (band checked at release). Options: accept and document; require the breach to persist; ask the reviewer | **Open — reviewer opinion requested** (Register O-01) | Stage 4 |
+| CL-05 | **Off-market Free deals (O-02).** A Free deal agreed more than 15% from market will always cancel at release | Free's band is fixed at ±15% (D-06) | App warning at Create Deal (ExtremeConditionsWarning); optional on-chain check at creation in spec v1.3 — **Open** (Register O-02) | Stage 4 |
+| CL-06 | **Late first confirmation.** If a party confirms delivery less than the auto-release window before expiry, the deal expires before auto-release can run and both are refunded | Expiry beats everything (B-23) — the simpler, safer rule | App warns when confirming close to expiry | Stage 4 |
+| CL-07 | **Price unavailable at release** (stale Chainlink feed or sequencer down) blocks release on deals with a price band until a live price returns; if that outlasts expiry, both are refunded | Releasing without a price would defeat the band (D-06) | Confirmations are kept (B-20); anyone can complete release later; refunds never need a price | Stage 4 |
+| CL-08 | **No on-chain identity, KYC or sanctions screening.** The contract can't tell who controls a wallet | By design (D-05): screening sits at the app / operator layer, not in the contract | Operator authorizer approves wallets for Enterprise deals; app-level KYC | Stage 2 |
+| CL-09 | **Deposit and fee tokens must be plain ERC-20s** on the whitelist (USDC, USDT, WBTC, DAI, WETH; ETH is used as WETH — CL-10). Fee-on-transfer, rebasing and callback tokens are unsupported | The deposit receipt check rejects fee-on-transfer; rebasing would break "Safe holds exactly the record" | Whitelist changes need the admin's 7-day notice | Stage 1–3 |
+| CL-10 | **Native ETH is not supported**; ETH must be wrapped (WETH) | The module can only make ERC-20 `transfer` calls — one less attack surface | App wraps ETH before deposit | Stage 2 |
+| CL-11 | **Two parties only in v1**, although `partyCount` / `threshold` are stored for future M-of-N (B-04) | v1 scope | Storage ready; logic would need review | Stage 2 |
+| CL-12 | **Deal Safe owner addresses are public on-chain** from the moment the Safe deploys | Safe requires owners on-chain | Partial-address display in the app is negotiation-stage privacy only | Baseline |
 
 ---
 
-*Document v4 — October 2026 · Craig Evans (founder) · trustbridgeprotocol.xyz*  
-*Responsible disclosure: craig@trustbridgeprotocol.xyz — smart contracts not yet deployed, no live funds at risk*
+## For grant reviewers and developers
+
+Sections 1 and 2 are expected prototype behaviour. Section 3 is the Phase 2 scope, with R-16 recording the confirmed architecture decisions. Section 5 shows active development discipline. Section 6 confirms the security decisions are fixed. Section 7 lists what the contracts themselves cannot prevent. The stress test found no fatal architectural problems — the gaps were specification or UI issues.
+
+---
+
+*Document v5 — November 2026 · Craig Evans (founder) · trustbridgeprotocol.xyz*  
+*Responsible disclosure: craig@trustbridgeprotocol.xyz — smart contracts on the Base Sepolia testnet only, no live funds at risk*
