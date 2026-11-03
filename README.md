@@ -6,7 +6,7 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Status: Prototype](https://img.shields.io/badge/Status-Prototype-orange.svg)]()
-[![Contracts: In development](https://img.shields.io/badge/Contracts-In%20development%2C%20not%20audited-orange.svg)]()
+[![Contracts: Base Sepolia testnet](https://img.shields.io/badge/Contracts-Base%20Sepolia%20testnet%2C%20not%20audited-orange.svg)]()
 [![Chain: Base](https://img.shields.io/badge/Chain-Base-blue.svg)]()
 [![Powered by Safe](https://img.shields.io/badge/Powered%20by-Safe-green.svg)]()
 
@@ -25,7 +25,7 @@ It is built as **white-label deal-room infrastructure for independent crypto ope
 **Current status**
 
 - **Prototype:** React/JSX deal flow (22 components, 5 screens) at [app.trustbridgeprotocol.xyz](https://app.trustbridgeprotocol.xyz). Simulated wallets, no real funds.
-- **Smart contracts:** in development to [SMART_CONTRACT_SPEC.md](SMART_CONTRACT_SPEC.md) v1.2 in a private repository. AI-assisted engineering under founder direction. **Not reviewed, not audited, not deployed.** An independent senior Solidity / Safe review and a recognised security audit come before any mainnet deployment.
+- **Smart contracts:** built to [SMART_CONTRACT_SPEC.md](SMART_CONTRACT_SPEC.md) (v1.3) and **deployed and verified on the Base Sepolia testnet** (November 2026), with a completed two-party demo deal — see [Testnet deployment](#testnet-deployment-base-sepolia). AI-assisted engineering under founder direction. **Not reviewed, not audited, not on mainnet.** An independent senior Solidity / Safe review and a recognised security audit come before any mainnet deployment.
 
 ---
 
@@ -33,7 +33,7 @@ It is built as **white-label deal-room infrastructure for independent crypto ope
 
 | Product | What it does | Safe architecture | Status |
 |---------|-------------|-------------------|--------|
-| **TrustBridge Deal** | Time-limited P2P / OTC exchange. Both parties deposit the agreed assets into the deal's own Safe; the swap happens when both confirm. Refund on expiry. Price-band protection via Chainlink | One Safe 2-of-2 per deal, with a TrustBridge module and guard | v1 — in development |
+| **TrustBridge Deal** | Time-limited P2P / OTC exchange. Both parties deposit the agreed assets into the deal's own Safe; the swap happens when both confirm. Refund on expiry. Price-band protection via Chainlink | One Safe 2-of-2 per deal, with a TrustBridge module and guard | v1 — on Base Sepolia testnet; review and audit next |
 | **TrustBridge Vault** | Longer-term shared vault for business partners, DAOs, joint ventures and vesting. Proportional return, yield integration, milestone-based release | Safe M-of-N, any threshold | Planned — Phase 4 |
 
 ---
@@ -101,7 +101,7 @@ Any state before COMPLETED:  both parties cancel → CANCELLED · expiry reached
 
 ## Smart contract functions (v1)
 
-**7 core + 4 supporting.** Full parameters and security requirements: [SMART_CONTRACT_SPEC.md](SMART_CONTRACT_SPEC.md).
+**7 core + 4 supporting.** Full parameters and security requirements: [SMART_CONTRACT_SPEC.md](SMART_CONTRACT_SPEC.md). All 11 are built and deployed on Base Sepolia.
 
 | Function | Who | What it does |
 |----------|-----|-------------|
@@ -174,6 +174,27 @@ White-label operators receive 70% of the completion fee on their deals, split au
 
 ---
 
+## Testnet deployment (Base Sepolia)
+
+Deployed 2 November 2026, signed from the founder's own wallet. **Testnet only — test tokens with no value. Not reviewed, not audited.** Source code is verified and readable on Basescan.
+
+| Contract | Address |
+|---|---|
+| TrustBridgeFactory | [`0xfC338886DCe651A424BceA8a3cD249a3D96719f3`](https://sepolia.basescan.org/address/0xfC338886DCe651A424BceA8a3cD249a3D96719f3#code) |
+| TrustBridgeConfig | [`0x416F79cb1BdAAa1e40E5528CCfBF8Be804e40849`](https://sepolia.basescan.org/address/0x416F79cb1BdAAa1e40E5528CCfBF8Be804e40849#code) |
+| TrustBridgeModule | [`0x2aa2980b92AEca2F4147803936A6fE62305073Dc`](https://sepolia.basescan.org/address/0x2aa2980b92AEca2F4147803936A6fE62305073Dc#code) |
+| TrustBridgeGuard | [`0x950452c2E5AB67fB0cD05A953575aeDE6F45FA90`](https://sepolia.basescan.org/address/0x950452c2E5AB67fB0cD05A953575aeDE6F45FA90#code) |
+| DealSettlement (library) | [`0x7Cf05A78491D17a06CCFe9C94C5F55713943EFeF`](https://sepolia.basescan.org/address/0x7Cf05A78491D17a06CCFe9C94C5F55713943EFeF#code) |
+| ChainlinkPriceAdapter | [`0xE29796843C9cCcE280833eFd1D2838bC75723261`](https://sepolia.basescan.org/address/0xE29796843C9cCcE280833eFd1D2838bC75723261#code) |
+
+Deal Safes use the official Safe v1.4.1 (SafeL2) contracts. Prices come from the live Chainlink Base Sepolia feeds. A guarded-launch cap of $50,000 per deal applies.
+
+**Demo deal #1** — 100 test USDC for test WETH between two separate wallets, Free plan: created, joined by invite, both deposited into the deal's own Safe, both confirmed delivery, atomic swap released. Party B received the full amount, Party A received the WETH less the 1% fee, and the deal Safe was left empty. [Deal Safe](https://sepolia.basescan.org/address/0xC6577d373C2e662eC1A1f4D88aDa5Bc9621B5C4C) · [release transaction](https://sepolia.basescan.org/tx/0xf99950e125914a4336a0089b6373d61c9c250faf1490a24834ca351c5a8cb649)
+
+Before deployment the contracts passed 331 tests (unit, fuzz, invariant and property tests, including 23 with a company Safe as a party), Slither with no high or medium findings, and a mutation check in which all 12 deliberately injected bugs were caught.
+
+---
+
 ## AML/CFT thresholds (UAE VARA)
 
 | Threshold | Obligation |
@@ -196,7 +217,7 @@ See [KNOWN_LIMITATIONS.md](KNOWN_LIMITATIONS.md) for the full register of protot
 | Phase | Status | Milestone |
 |-------|--------|-----------|
 | Phase 1 — Validate | ✅ Complete | Prototype built, market validated |
-| Phase 2 — Build | 🔄 In progress | Smart contracts to spec v1.2 → independent review → audit → Base Sepolia testnet |
+| Phase 2 — Build | 🔄 In progress | ✅ Smart contracts built and deployed on Base Sepolia (Nov 2026) → independent review → audit → app connected to the contracts → operator testnet deals |
 | Phase 3 — Launch | ⏳ Planned | Mainnet with a guarded-launch deal cap, white-label operators |
 | Phase 4 — Expand | ⏳ Planned | TrustBridge Vault, M-of-N, further EVM chains |
 
@@ -214,7 +235,7 @@ This is the **public specification repository**:
 
 Private repositories (available for review under NDA):
 
-- **trustbridge-contracts**: the v1 smart contracts (Foundry). Private until audited, then published under MIT
+- **trustbridge-contracts**: the v1 smart contracts (Foundry). Private until audited, then published under MIT. The testnet deployment's source is already readable on Basescan
 - **trustbridge**: the React/JSX prototype
 
 ---
@@ -222,8 +243,8 @@ Private repositories (available for review under NDA):
 ## Contact
 
 **Craig Evans** — Founder, TrustBridge Protocol  
-Dubai, UAE · October 2026  
+Dubai, UAE · November 2026  
 [trustbridgeprotocol.xyz](https://trustbridgeprotocol.xyz) · craig@trustbridgeprotocol.xyz
 
 **Responsible disclosure:** craig@trustbridgeprotocol.xyz  
-Smart contracts are not yet deployed. No live funds are at risk.
+Smart contracts are deployed on the Base Sepolia **testnet** only. Nothing is deployed on mainnet and no real funds are at risk.
